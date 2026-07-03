@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Friend in Christ — Bible Companion</title>
+<meta name="description" content="Ask anything about the Bible. Type a question and hear the answer spoken aloud." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Karla:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #FAF6EE;
+    --ink: #2A2019;
+    --ink-soft: #6B5D4F;
+    --wine: #722F37;
+    --wine-deep: #5C242B;
+    --gold: #A8842C;
+    --line: #E4D9C3;
+    --field: #7A9455;
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+
+  body {
+    font-family: "Karla", system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    padding: calc(10px + env(safe-area-inset-top)) 12px 0;
+    text-align: center;
+    flex-shrink: 0;
+    position: relative;
+    background: var(--paper);
+  }
+  .clock {
+    position: absolute;
+    left: 12px;
+    top: calc(12px + env(safe-area-inset-top));
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-align: left;
+    line-height: 1.3;
+  }
+  .clock .t { color: var(--wine); font-size: 0.82rem; letter-spacing: 0.03em; }
+  .voice-toggle {
+    position: absolute;
+    right: 12px;
+    top: calc(10px + env(safe-area-inset-top));
+    border: 1px solid var(--line);
+    background: #FFFDF7;
+    color: var(--wine);
+    border-radius: 20px;
+    padding: 6px 11px;
+    font-family: inherit;
+    font-size: 0.74rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .voice-toggle.off { color: #A79781; }
+  .voice-toggle svg { width: 14px; height: 14px; }
+
+  header h1 {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 600;
+    font-size: 1.45rem;
+    color: var(--wine);
+    margin-top: 2px;
+  }
+  .rule {
+    width: 120px;
+    margin: 5px auto 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--gold);
+  }
+  .rule::before, .rule::after { content: ""; flex: 1; height: 1px; }
+  .rule::before { background: linear-gradient(to right, transparent, var(--gold)); }
+  .rule::after  { background: linear-gradient(to left, transparent, var(--gold)); }
+  .rule span { font-size: 0.75rem; line-height: 1; transform: translateY(-1px); }
+
+  /* ---------- Nav dashboard ---------- */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 2px 10px 10px;
+    flex-wrap: wrap;
+  }
+  nav a {
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 7px 13px;
+    border-radius: 18px;
+    border: 1px solid var(--line);
+    background: #FFFDF7;
+    color: var(--wine);
+    white-space: nowrap;
+  }
+  nav a.active {
+    background: var(--wine);
+    color: #FBF3EC;
+    border-color: var(--wine);
+  }
+
+  /* ---------- Bethlehem scene ---------- */
+  .scene {
+    display: block;
+    width: 100%;
+    height: 130px;
+    flex-shrink: 0;
+  }
+
+  /* ---------- Chat ---------- */
+  main { flex: 1; overflow-y: auto; padding: 16px 14px 10px; scroll-behavior: smooth; }
+  .thread { max-width: 660px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+
+  .msg { display: flex; gap: 10px; align-items: flex-end; animation: rise 0.25s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .msg { animation: none; } main { scroll-behavior: auto; } }
+
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--wine);
+    color: var(--paper);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.15rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1.5px var(--gold);
+  }
+  .avatar.speaking { animation: pulse 1s infinite ease-in-out; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: inset 0 0 0 1.5px var(--gold), 0 0 0 0 rgba(168,132,44,0.4); }
+    50% { box-shadow: inset 0 0 0 1.5px var(--gold), 0 0 0 7px rgba(168,132,44,0); }
+  }
+
+  .bubble {
+    max-width: 82%;
+    padding: 12px 15px;
+    border-radius: var(--radius);
+    font-size: 0.96rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+  .msg.agent .bubble {
+    background: #FFFDF7;
+    border: 1px solid var(--line);
+    border-bottom-left-radius: 6px;
+    box-shadow: 0 1px 2px rgba(42,32,25,0.05);
+  }
+  .msg.user { flex-direction: row-reverse; }
+  .msg.user .bubble {
+    background: var(--wine);
+    color: #FBF3EC;
+    border-bottom-right-radius: 6px;
+  }
+
+  .verse-ref {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+  .msg.user .verse-ref { color: #E9C87C; }
+
+  .replay {
+    border: none;
+    background: none;
+    color: var(--gold);
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 6px 2px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .replay svg { width: 13px; height: 13px; }
+
+  .dots { display: inline-flex; gap: 5px; padding: 6px 2px; }
+  .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: blink 1.2s infinite ease-in-out; }
+  .dots i:nth-child(2) { animation-delay: 0.15s; }
+  .dots i:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes blink { 0%, 70%, 100% { opacity: 0.25; } 35% { opacity: 1; } }
+
+  .error-note {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--wine);
+    background: #F7E8E4;
+    border: 1px solid #EAD0C9;
+    border-radius: 10px;
+    padding: 8px 14px;
+    margin: 0 auto;
+    max-width: 480px;
+  }
+
+  /* ---------- Daily verse ---------- */
+  .daily-verse {
+    max-width: 660px;
+    margin: 4px auto 0;
+    padding: 10px 16px 2px;
+    text-align: center;
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    line-height: 1.45;
+  }
+  .daily-verse .ref { color: var(--gold); font-weight: 600; white-space: nowrap; }
+
+  /* ---------- Composer ---------- */
+  footer {
+    flex-shrink: 0;
+    padding: 4px 14px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .composer {
+    max-width: 660px;
+    margin: 8px auto 0;
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    background: #FFFDF7;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 8px 8px 8px 16px;
+  }
+  .composer:focus-within { border-color: var(--gold); }
+  textarea {
+    flex: 1;
+    border: none;
+    background: transparent;
+    resize: none;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.45;
+    color: var(--ink);
+    max-height: 120px;
+    outline: none;
+  }
+  textarea::placeholder { color: #A79781; }
+  button.send {
+    width: 40px; height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: var(--wine);
+    color: #FBF3EC;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  button.send:hover { background: var(--wine-deep); }
+  button.send:disabled { background: #C9B99E; cursor: default; }
+  button.send svg { width: 18px; height: 18px; }
+  .footnote {
+    text-align: center;
+    font-size: 0.68rem;
+    color: #A79781;
+    margin-top: 7px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="clock" aria-label="Philippine time">
+    <div class="t" id="phTime">--:--:--</div>
+    <div id="phDate">Philippines</div>
+  </div>
+  <button class="voice-toggle" id="voiceToggle" aria-pressed="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+    <span id="voiceLabel">Voice on</span>
+  </button>
+
+  <h1>Friend in Christ</h1>
+  <div class="rule"><span>✝</span></div>
+
+  <nav>
+    <a href="index.html" class="active">💬 Chat</a>
+    <a href="testimonies.html">📖 Testimonies</a>
+    <a href="prayers.html">🙏 Pray for Me &amp; You</a>
+  </nav>
+</header>
+
+<!-- Bethlehem pastoral scene -->
+<svg class="scene" viewBox="0 0 800 130" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2E3A5C"/>
+      <stop offset="0.55" stop-color="#6E6489"/>
+      <stop offset="1" stop-color="#E8B87A"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="130" fill="url(#sky)"/>
+  <!-- Star of Bethlehem -->
+  <g fill="#FFEFC2">
+    <path d="M620 14 L623 30 L639 33 L623 36 L620 52 L617 36 L601 33 L617 30 Z"/>
+    <rect x="619" y="50" width="2" height="26" opacity="0.5"/>
+  </g>
+  <circle cx="620" cy="33" r="10" fill="#FFEFC2" opacity="0.25"/>
+  <!-- small stars -->
+  <circle cx="80" cy="22" r="1.5" fill="#FFF6DC" opacity="0.8"/>
+  <circle cx="180" cy="40" r="1.2" fill="#FFF6DC" opacity="0.6"/>
+  <circle cx="320" cy="18" r="1.4" fill="#FFF6DC" opacity="0.7"/>
+  <circle cx="470" cy="34" r="1.2" fill="#FFF6DC" opacity="0.6"/>
+  <circle cx="730" cy="24" r="1.5" fill="#FFF6DC" opacity="0.8"/>
+  <!-- distant hill -->
+  <path d="M0 96 Q160 62 340 92 Q520 118 800 84 L800 130 L0 130 Z" fill="#5F7A45"/>
+  <!-- stable on the hill -->
+  <g transform="translate(560,64)">
+    <path d="M0 22 L26 2 L52 22 Z" fill="#4A3524"/>
+    <rect x="4" y="22" width="44" height="24" fill="#6B4E33"/>
+    <rect x="20" y="30" width="12" height="16" fill="#2E2117"/>
+    <rect x="24" y="6" width="4" height="10" fill="#4A3524"/>
+  </g>
+  <!-- near field -->
+  <path d="M0 112 Q200 90 420 108 Q620 124 800 106 L800 130 L0 130 Z" fill="#7A9455"/>
+  <!-- sheep: body, head, legs, ear -->
+  <g fill="#F6F1E4" stroke="#3B3226" stroke-width="1">
+    <g transform="translate(120,100)">
+      <ellipse cx="0" cy="0" rx="13" ry="8"/>
+      <circle cx="12" cy="-4" r="4.5" fill="#3B3226" stroke="none"/>
+      <line x1="-6" y1="7" x2="-6" y2="13"/><line x1="5" y1="7" x2="5" y2="13"/>
+    </g>
+    <g transform="translate(210,110)">
+      <ellipse cx="0" cy="0" rx="11" ry="7"/>
+      <circle cx="-10" cy="-3" r="4" fill="#3B3226" stroke="none"/>
+      <line x1="-4" y1="6" x2="-4" y2="11"/><line x1="5" y1="6" x2="5" y2="11"/>
+    </g>
+    <g transform="translate(340,104)">
+      <ellipse cx="0" cy="0" rx="13" ry="8"/>
+      <circle cx="12" cy="-4" r="4.5" fill="#3B3226" stroke="none"/>
+      <line x1="-6" y1="7" x2="-6" y2="13"/><line x1="5" y1="7" x2="5" y2="13"/>
+    </g>
+    <g transform="translate(452,114)">
+      <ellipse cx="0" cy="0" rx="9" ry="6"/>
+      <circle cx="8" cy="-3" r="3.5" fill="#3B3226" stroke="none"/>
+      <line x1="-4" y1="5" x2="-4" y2="9"/><line x1="4" y1="5" x2="4" y2="9"/>
+    </g>
+  </g>
+</svg>
+
+<main>
+  <div class="thread" id="thread" aria-live="polite"></div>
+</main>
+
+<footer>
+  <p class="daily-verse" id="dailyVerse"></p>
+  <div class="composer">
+    <textarea id="input" rows="1" placeholder="Ask about a verse, a story, a question of faith…" aria-label="Your message"></textarea>
+    <button class="send" id="send" aria-label="Send message">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+    </button>
+  </div>
+  <p class="footnote">Answers are AI-generated and spoken aloud — always test them against Scripture itself.</p>
+</footer>
+
+<script>
+  /* ---------- Philippine clock ---------- */
+  const phTime = document.getElementById("phTime");
+  const phDate = document.getElementById("phDate");
+  function tick() {
+    const now = new Date();
+    phTime.textContent = new Intl.DateTimeFormat("en-PH", {
+      timeZone: "Asia/Manila", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true
+    }).format(now);
+    phDate.textContent = new Intl.DateTimeFormat("en-PH", {
+      timeZone: "Asia/Manila", weekday: "short", month: "short", day: "numeric"
+    }).format(now) + " · PH";
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* ---------- Random verse of the visit ---------- */
+  const VERSES = [
+    ["For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.", "John 3:16"],
+    ["Trust in the LORD with all thine heart; and lean not unto thine own understanding.", "Proverbs 3:5"],
+    ["I can do all things through Christ which strengtheneth me.", "Philippians 4:13"],
+    ["The LORD is my shepherd; I shall not want.", "Psalm 23:1"],
+    ["And we know that all things work together for good to them that love God.", "Romans 8:28"],
+    ["Be strong and of a good courage; be not afraid... for the LORD thy God is with thee whithersoever thou goest.", "Joshua 1:9"],
+    ["Come unto me, all ye that labour and are heavy laden, and I will give you rest.", "Matthew 11:28"],
+    ["But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles.", "Isaiah 40:31"],
+    ["Thy word is a lamp unto my feet, and a light unto my path.", "Psalm 119:105"],
+    ["Casting all your care upon him; for he careth for you.", "1 Peter 5:7"],
+    ["Jesus Christ the same yesterday, and to day, and for ever.", "Hebrews 13:8"],
+    ["Rejoice in the Lord alway: and again I say, Rejoice.", "Philippians 4:4"],
+    ["The LORD bless thee, and keep thee: the LORD make his face shine upon thee.", "Numbers 6:24-25"],
+    ["For where two or three are gathered together in my name, there am I in the midst of them.", "Matthew 18:20"],
+    ["Peace I leave with you, my peace I give unto you... Let not your heart be troubled, neither let it be afraid.", "John 14:27"],
+    ["This is the day which the LORD hath made; we will rejoice and be glad in it.", "Psalm 118:24"],
+    ["And now abideth faith, hope, charity, these three; but the greatest of these is charity.", "1 Corinthians 13:13"],
+    ["Draw nigh to God, and he will draw nigh to you.", "James 4:8"],
+    ["The LORD is nigh unto them that are of a broken heart.", "Psalm 34:18"],
+    ["For with God nothing shall be impossible.", "Luke 1:37"]
+  ];
+  const v = VERSES[Math.floor(Math.random() * VERSES.length)];
+  document.getElementById("dailyVerse").innerHTML =
+    "&ldquo;" + v[0] + "&rdquo; <span class='ref'>— " + v[1] + "</span>";
+
+  /* ---------- Chat, voice, and Grok ---------- */
+  const thread = document.getElementById("thread");
+  const input = document.getElementById("input");
+  const sendBtn = document.getElementById("send");
+  const voiceToggle = document.getElementById("voiceToggle");
+  const voiceLabel = document.getElementById("voiceLabel");
+
+  const history = [];
+  let busy = false;
+  let voiceOn = true;
+  let currentAvatar = null;
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+
+  function pickVoice() {
+    const voices = synth ? synth.getVoices() : [];
+    if (!voices.length) return;
+    const maleVoice = voices.find(v =>
+      v.lang && v.lang.startsWith("en") && /male|man\b/i.test(v.name) && !/female/i.test(v.name)
+    );
+    if (maleVoice) { chosenVoice = maleVoice; return; }
+    const preferred = [
+      "Google UK English Male", "Daniel", "Microsoft Guy", "Microsoft Christopher",
+      "Microsoft Eric", "Alex", "Fred", "Google US English"
+    ];
+    chosenVoice =
+      voices.find(v => preferred.some(p => v.name.includes(p))) ||
+      voices.find(v => v.lang && v.lang.startsWith("en")) ||
+      voices[0];
+  }
+  if (synth) {
+    pickVoice();
+    synth.onvoiceschanged = pickVoice;
+  }
+
+  function speak(text, avatarEl) {
+    if (!voiceOn || !synth) return;
+    synth.cancel();
+    const clean = text.replace(/[*_#`]/g, "").replace(/\s+/g, " ").trim();
+    const u = new SpeechSynthesisUtterance(clean);
+    if (chosenVoice) u.voice = chosenVoice;
+    u.rate = 0.98;
+    u.pitch = 1.0;
+    if (avatarEl) {
+      currentAvatar = avatarEl;
+      u.onstart = () => avatarEl.classList.add("speaking");
+      u.onend = () => avatarEl.classList.remove("speaking");
+      u.onerror = () => avatarEl.classList.remove("speaking");
+    }
+    synth.speak(u);
+  }
+
+  function stopSpeaking() {
+    if (synth) synth.cancel();
+    if (currentAvatar) currentAvatar.classList.remove("speaking");
+  }
+
+  voiceToggle.addEventListener("click", () => {
+    voiceOn = !voiceOn;
+    voiceToggle.classList.toggle("off", !voiceOn);
+    voiceToggle.setAttribute("aria-pressed", String(voiceOn));
+    voiceLabel.textContent = voiceOn ? "Voice on" : "Voice off";
+    if (!voiceOn) stopSpeaking();
+  });
+
+  const BOOKS = "(?:Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|(?:1|2)\\s?Samuel|(?:1|2)\\s?Kings|(?:1|2)\\s?Chronicles|Ezra|Nehemiah|Esther|Job|Psalms?|Proverbs|Ecclesiastes|Song of Solomon|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|(?:1|2)\\s?Corinthians|Galatians|Ephesians|Philippians|Colossians|(?:1|2)\\s?Thessalonians|(?:1|2)\\s?Timothy|Titus|Philemon|Hebrews|James|(?:1|2)\\s?Peter|(?:1|2|3)\\s?John|Jude|Revelation)";
+  const VERSE_RE = new RegExp("\\b(" + BOOKS + "\\s\\d{1,3}(?::\\d{1,3}(?:[-–]\\d{1,3})?)?)", "g");
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function renderContent(text) {
+    return escapeHtml(text).replace(VERSE_RE, '<span class="verse-ref">$1</span>');
+  }
+
+  function addMessage(role, text) {
+    const row = document.createElement("div");
+    row.className = "msg " + (role === "user" ? "user" : "agent");
+    let avatarEl = null;
+
+    if (role !== "user") {
+      avatarEl = document.createElement("div");
+      avatarEl.className = "avatar";
+      avatarEl.textContent = "✝";
+      row.appendChild(avatarEl);
+    }
+
+    const col = document.createElement("div");
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.innerHTML = renderContent(text);
+    col.appendChild(bubble);
+
+    if (role !== "user") {
+      const replay = document.createElement("button");
+      replay.className = "replay";
+      replay.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Hear again';
+      replay.addEventListener("click", () => speak(text, avatarEl));
+      col.appendChild(replay);
+    }
+
+    row.appendChild(col);
+    thread.appendChild(row);
+    scrollDown();
+    return avatarEl;
+  }
+
+  function addTyping() {
+    const row = document.createElement("div");
+    row.className = "msg agent";
+    row.id = "typing";
+    row.innerHTML = '<div class="avatar">✝</div><div class="bubble"><span class="dots"><i></i><i></i><i></i></span></div>';
+    thread.appendChild(row);
+    scrollDown();
+  }
+  function removeTyping() { document.getElementById("typing")?.remove(); }
+
+  function showError(text) {
+    const el = document.createElement("div");
+    el.className = "error-note";
+    el.textContent = text;
+    thread.appendChild(el);
+    scrollDown();
+  }
+
+  function scrollDown() {
+    requestAnimationFrame(() => {
+      thread.parentElement.scrollTop = thread.parentElement.scrollHeight;
+    });
+  }
+
+  async function send() {
+    const text = input.value.trim();
+    if (!text || busy) return;
+
+    stopSpeaking();
+    input.value = "";
+    autosize();
+    addMessage("user", text);
+    history.push({ role: "user", content: text });
+
+    busy = true;
+    sendBtn.disabled = true;
+    addTyping();
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: history }),
+      });
+      const data = await res.json().catch(() => ({}));
+      removeTyping();
+
+      if (!res.ok || !data.reply) {
+        showError(data.error || "Something went wrong. Please try again.");
+        history.pop();
+      } else {
+        history.push({ role: "assistant", content: data.reply });
+        const avatarEl = addMessage("assistant", data.reply);
+        speak(data.reply, avatarEl);
+      }
+    } catch {
+      removeTyping();
+      showError("Couldn't reach the server. Check your connection and try again.");
+      history.pop();
+    } finally {
+      busy = false;
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+
+  function autosize() {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 120) + "px";
+  }
+
+  sendBtn.addEventListener("click", send);
+  input.addEventListener("input", autosize);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  });
+
+  addMessage(
+    "assistant",
+    "Hello, this is your friend in Christ. I can help with your Bible questions — is there a verse, story, or matter of faith on your heart today?"
+  );
+</script>
+</body>
+</html>

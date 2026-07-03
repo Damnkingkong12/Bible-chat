@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Life Testimonies — Friend in Christ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Karla:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #FAF6EE;
+    --ink: #2A2019;
+    --ink-soft: #6B5D4F;
+    --wine: #722F37;
+    --wine-deep: #5C242B;
+    --gold: #A8842C;
+    --line: #E4D9C3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Karla", system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+  }
+  header {
+    padding: calc(10px + env(safe-area-inset-top)) 12px 0;
+    text-align: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .clock {
+    position: absolute;
+    left: 12px;
+    top: calc(12px + env(safe-area-inset-top));
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-align: left;
+    line-height: 1.3;
+  }
+  .clock .t { color: var(--wine); font-size: 0.82rem; }
+  header h1 {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 600;
+    font-size: 1.45rem;
+    color: var(--wine);
+    margin-top: 2px;
+  }
+  .rule {
+    width: 120px; margin: 5px auto 8px;
+    display: flex; align-items: center; gap: 8px; color: var(--gold);
+  }
+  .rule::before, .rule::after { content: ""; flex: 1; height: 1px; }
+  .rule::before { background: linear-gradient(to right, transparent, var(--gold)); }
+  .rule::after  { background: linear-gradient(to left, transparent, var(--gold)); }
+  .rule span { font-size: 0.75rem; line-height: 1; transform: translateY(-1px); }
+  nav {
+    display: flex; justify-content: center; gap: 8px;
+    padding: 2px 10px 10px; flex-wrap: wrap;
+  }
+  nav a {
+    text-decoration: none; font-size: 0.78rem; font-weight: 700;
+    padding: 7px 13px; border-radius: 18px;
+    border: 1px solid var(--line); background: #FFFDF7; color: var(--wine);
+    white-space: nowrap;
+  }
+  nav a.active { background: var(--wine); color: #FBF3EC; border-color: var(--wine); }
+
+  .scene { display: block; width: 100%; height: 76px; flex-shrink: 0; }
+
+  main { flex: 1; overflow-y: auto; padding: 16px 14px 30px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+
+  .intro {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  /* form */
+  .share {
+    background: #FFFDF7;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 20px;
+  }
+  .share h2 {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.1rem;
+    color: var(--wine);
+    margin-bottom: 10px;
+  }
+  .share input, .share textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+    font-family: inherit;
+    font-size: 0.92rem;
+    color: var(--ink);
+    padding: 9px 11px;
+    outline: none;
+  }
+  .share input:focus, .share textarea:focus { border-color: var(--gold); }
+  .share textarea { margin-top: 8px; resize: none; height: 74px; }
+  .hp { position: absolute; left: -5000px; top: -5000px; }
+  .counts {
+    display: flex; justify-content: space-between;
+    font-size: 0.7rem; color: #A79781; margin-top: 5px;
+  }
+  .share button {
+    margin-top: 10px;
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    background: var(--wine);
+    color: #FBF3EC;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.92rem;
+    padding: 11px;
+    cursor: pointer;
+  }
+  .share button:hover { background: var(--wine-deep); }
+  .share button:disabled { background: #C9B99E; cursor: default; }
+  .form-msg { font-size: 0.8rem; margin-top: 8px; text-align: center; }
+  .form-msg.err { color: var(--wine); }
+  .form-msg.ok { color: #4C7A3D; }
+
+  /* posts */
+  .post {
+    background: #FFFDF7;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .post .head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .post .who {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 600;
+    font-size: 1.02rem;
+    color: var(--wine);
+  }
+  .post .when { font-size: 0.68rem; color: #A79781; }
+  .post .body { font-size: 0.92rem; line-height: 1.5; overflow-wrap: break-word; }
+  .post .actions { margin-top: 8px; }
+  .like {
+    border: 1px solid var(--line);
+    background: var(--paper);
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--wine);
+    padding: 4px 12px;
+    cursor: pointer;
+  }
+  .like.liked { background: var(--wine); color: #FBF3EC; border-color: var(--wine); }
+  .empty, .loading {
+    text-align: center; color: #A79781; font-size: 0.85rem; padding: 18px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="clock" aria-label="Philippine time">
+    <div class="t" id="phTime">--:--:--</div>
+    <div id="phDate">Philippines</div>
+  </div>
+  <h1>Life Testimonies</h1>
+  <div class="rule"><span>✝</span></div>
+  <nav>
+    <a href="index.html">💬 Chat</a>
+    <a href="testimonies.html" class="active">📖 Testimonies</a>
+    <a href="prayers.html">🙏 Pray for Me &amp; You</a>
+  </nav>
+</header>
+
+<svg class="scene" viewBox="0 0 800 76" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2E3A5C"/>
+      <stop offset="0.6" stop-color="#6E6489"/>
+      <stop offset="1" stop-color="#E8B87A"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="76" fill="url(#sky2)"/>
+  <g fill="#FFEFC2">
+    <path d="M620 8 L622 19 L633 21 L622 23 L620 34 L618 23 L607 21 L618 19 Z"/>
+  </g>
+  <circle cx="120" cy="14" r="1.3" fill="#FFF6DC" opacity="0.8"/>
+  <circle cx="300" cy="10" r="1.2" fill="#FFF6DC" opacity="0.6"/>
+  <circle cx="480" cy="18" r="1.2" fill="#FFF6DC" opacity="0.7"/>
+  <path d="M0 56 Q200 36 420 54 Q620 68 800 50 L800 76 L0 76 Z" fill="#5F7A45"/>
+  <path d="M0 66 Q260 52 520 64 Q680 72 800 62 L800 76 L0 76 Z" fill="#7A9455"/>
+  <g fill="#F6F1E4" stroke="#3B3226" stroke-width="1">
+    <g transform="translate(180,62)">
+      <ellipse cx="0" cy="0" rx="10" ry="6"/>
+      <circle cx="9" cy="-3" r="3.5" fill="#3B3226" stroke="none"/>
+      <line x1="-4" y1="5" x2="-4" y2="9"/><line x1="4" y1="5" x2="4" y2="9"/>
+    </g>
+    <g transform="translate(560,66)">
+      <ellipse cx="0" cy="0" rx="9" ry="5.5"/>
+      <circle cx="-8" cy="-2" r="3.2" fill="#3B3226" stroke="none"/>
+      <line x1="-3" y1="4" x2="-3" y2="8"/><line x1="4" y1="4" x2="4" y2="8"/>
+    </g>
+  </g>
+</svg>
+
+<main>
+  <div class="wrap">
+    <p class="intro">Read how God has moved in the lives of others — and share what He has done in yours.</p>
+
+    <div class="share">
+      <h2>Share your testimony</h2>
+      <input id="name" maxlength="15" placeholder="Your name (max 15 characters)" />
+      <textarea id="text" maxlength="150" placeholder="What has God done in your life? (max 150 characters)"></textarea>
+      <input class="hp" id="website" tabindex="-1" autocomplete="off" placeholder="Leave this empty" />
+      <div class="counts"><span id="nameCount">0 / 15</span><span id="textCount">0 / 150</span></div>
+      <button id="submit">Share Testimony 📖</button>
+      <p class="form-msg" id="formMsg"></p>
+    </div>
+
+    <div id="list"><p class="loading">Loading testimonies…</p></div>
+  </div>
+</main>
+
+<script>
+  const TYPE = "testimony";
+
+  /* PH clock */
+  const phTime = document.getElementById("phTime");
+  const phDate = document.getElementById("phDate");
+  function tick() {
+    const now = new Date();
+    phTime.textContent = new Intl.DateTimeFormat("en-PH", {
+      timeZone: "Asia/Manila", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true
+    }).format(now);
+    phDate.textContent = new Intl.DateTimeFormat("en-PH", {
+      timeZone: "Asia/Manila", weekday: "short", month: "short", day: "numeric"
+    }).format(now) + " · PH";
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* form */
+  const nameEl = document.getElementById("name");
+  const textEl = document.getElementById("text");
+  const websiteEl = document.getElementById("website");
+  const submitBtn = document.getElementById("submit");
+  const formMsg = document.getElementById("formMsg");
+  const listEl = document.getElementById("list");
+  const liked = new Set();
+
+  nameEl.addEventListener("input", () => {
+    document.getElementById("nameCount").textContent = nameEl.value.length + " / 15";
+  });
+  textEl.addEventListener("input", () => {
+    document.getElementById("textCount").textContent = textEl.value.length + " / 150";
+  });
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function timeAgo(ts) {
+    const s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 60) return "just now";
+    if (s < 3600) return Math.floor(s / 60) + "m ago";
+    if (s < 86400) return Math.floor(s / 3600) + "h ago";
+    return Math.floor(s / 86400) + "d ago";
+  }
+
+  function render(posts) {
+    if (!posts.length) {
+      listEl.innerHTML = '<p class="empty">No testimonies yet — be the first to share what God has done! 🙏</p>';
+      return;
+    }
+    listEl.innerHTML = "";
+    posts.forEach((p) => {
+      const div = document.createElement("div");
+      div.className = "post";
+      div.innerHTML =
+        '<div class="head"><span class="who">' + esc(p.name) + '</span>' +
+        '<span class="when">' + timeAgo(p.ts) + "</span></div>" +
+        '<p class="body">' + esc(p.text) + "</p>" +
+        '<div class="actions"><button class="like' + (liked.has(p.id) ? " liked" : "") + '">❤️ ' +
+        (p.likes || 0) + "</button></div>";
+      div.querySelector(".like").addEventListener("click", async (e) => {
+        if (liked.has(p.id)) return;
+        liked.add(p.id);
+        const btn = e.currentTarget;
+        btn.classList.add("liked");
+        try {
+          const res = await fetch("/api/posts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type: TYPE, action: "like", id: p.id }),
+          });
+          const data = await res.json();
+          if (res.ok) btn.textContent = "❤️ " + data.likes;
+        } catch {}
+      });
+      listEl.appendChild(div);
+    });
+  }
+
+  async function load() {
+    try {
+      const res = await fetch("/api/posts?type=" + TYPE);
+      const data = await res.json();
+      if (!res.ok) {
+        listEl.innerHTML = '<p class="empty">' + esc(data.error || "Couldn't load posts.") + "</p>";
+        return;
+      }
+      render(data.posts || []);
+    } catch {
+      listEl.innerHTML = '<p class="empty">Couldn\'t load posts. Check your connection.</p>';
+    }
+  }
+
+  submitBtn.addEventListener("click", async () => {
+    formMsg.textContent = "";
+    formMsg.className = "form-msg";
+    submitBtn.disabled = true;
+    try {
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: TYPE,
+          name: nameEl.value,
+          text: textEl.value,
+          website: websiteEl.value,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        formMsg.textContent = data.error || "Couldn't post right now.";
+        formMsg.classList.add("err");
+      } else {
+        formMsg.textContent = "Thank you for sharing! ✝";
+        formMsg.classList.add("ok");
+        textEl.value = "";
+        document.getElementById("textCount").textContent = "0 / 150";
+        load();
+      }
+    } catch {
+      formMsg.textContent = "Couldn't reach the server. Try again.";
+      formMsg.classList.add("err");
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  load();
+</script>
+</body>
+</html>
